@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 pub type ToxicValueType = u32;
 
-pub static TOXIC_CONDITION_MATCHER_TYPE: &str = "httpRequestHeaderMatcher";
+pub const TOXIC_CONDITION_MATCHER_TYPE: &str = "httpRequestHeaderMatcher";
 
 /// Config of a Toxic.
 #[derive(Serialize, Deserialize, Debug)]
