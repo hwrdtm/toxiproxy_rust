@@ -178,15 +178,53 @@ impl Proxy {
         jitter: ToxicValueType,
         toxicity: f32,
     ) -> &Self {
+        self.with_latency_upon_condition(stream, latency, jitter, toxicity, None)
+    }
+
+    /// Registers a [latency] Toxic with a condition.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # toxiproxy_rust::TOXIPROXY.populate(vec![toxiproxy_rust::proxy::ProxyPack::new(
+    /// #    "socket".into(),
+    /// #    "localhost:2001".into(),
+    /// #    "localhost:2000".into(),
+    /// # )]);
+    /// toxiproxy_rust::TOXIPROXY
+    ///   .find_proxy("socket")
+    ///   .unwrap()
+    ///   .with_latency_upon_condition(
+    ///     "downstream".into(),
+    ///     2000,
+    ///     0,
+    ///     1.0,
+    ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
+    ///       "x-api-key".into(),
+    ///       "123456".into(),
+    ///     )),
+    ///   );
+    /// ```
+    ///
+    /// [latency]: https://github.com/Shopify/toxiproxy#latency
+    pub fn with_latency_upon_condition(
+        &self,
+        stream: String,
+        latency: ToxicValueType,
+        jitter: ToxicValueType,
+        toxicity: f32,
+        condition: Option<ToxicCondition>,
+    ) -> &Self {
         let mut attributes = HashMap::new();
         attributes.insert("latency".into(), latency);
         attributes.insert("jitter".into(), jitter);
 
-        self.create_toxic(ToxicPack::new(
+        self.create_toxic(ToxicPack::new_with_condition(
             "latency".into(),
             stream,
             toxicity,
             attributes,
+            condition,
         ))
     }
 
@@ -208,14 +246,50 @@ impl Proxy {
     ///
     /// [bandwith]: https://github.com/Shopify/toxiproxy#bandwith
     pub fn with_bandwidth(&self, stream: String, rate: ToxicValueType, toxicity: f32) -> &Self {
+        self.with_bandwidth_upon_condition(stream, rate, toxicity, None)
+    }
+
+    /// Registers a [bandwith] Toxic with a condition.
+    ///     
+    /// # Examples
+    ///
+    /// ```
+    /// # toxiproxy_rust::TOXIPROXY.populate(vec![toxiproxy_rust::proxy::ProxyPack::new(
+    /// #    "socket".into(),
+    /// #    "localhost:2001".into(),
+    /// #    "localhost:2000".into(),
+    /// # )]);
+    /// toxiproxy_rust::TOXIPROXY
+    ///   .find_proxy("socket")
+    ///   .unwrap()
+    ///   .with_bandwidth_upon_condition(
+    ///     "downstream".into(),
+    ///     500,
+    ///     1.0,
+    ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
+    ///       "x-api-key".into(),
+    ///       "123456".into(),
+    ///     )),
+    ///   );
+    /// ```
+    ///
+    /// [bandwith]: https://github.com/Shopify/toxiproxy#bandwith
+    pub fn with_bandwidth_upon_condition(
+        &self,
+        stream: String,
+        rate: ToxicValueType,
+        toxicity: f32,
+        condition: Option<ToxicCondition>,
+    ) -> &Self {
         let mut attributes = HashMap::new();
         attributes.insert("rate".into(), rate);
 
-        self.create_toxic(ToxicPack::new(
+        self.create_toxic(ToxicPack::new_with_condition(
             "bandwidth".into(),
             stream,
             toxicity,
             attributes,
+            condition,
         ))
     }
 
@@ -237,14 +311,50 @@ impl Proxy {
     ///
     /// [slow_close]: https://github.com/Shopify/toxiproxy#slow_close
     pub fn with_slow_close(&self, stream: String, delay: ToxicValueType, toxicity: f32) -> &Self {
+        self.with_slow_close_upon_condition(stream, delay, toxicity, None)
+    }
+
+    /// Registers a [slow_close] Toxic with a condition.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # toxiproxy_rust::TOXIPROXY.populate(vec![toxiproxy_rust::proxy::ProxyPack::new(
+    /// #    "socket".into(),
+    /// #    "localhost:2001".into(),
+    /// #    "localhost:2000".into(),
+    /// # )]);
+    /// toxiproxy_rust::TOXIPROXY
+    ///   .find_proxy("socket")
+    ///   .unwrap()
+    ///   .with_slow_close_upon_condition(
+    ///     "downstream".into(),
+    ///     500,
+    ///     1.0,
+    ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
+    ///       "x-api-key".into(),
+    ///       "123456".into(),
+    ///     )),
+    ///   );
+    /// ```
+    ///
+    /// [slow_close]: https://github.com/Shopify/toxiproxy#slow_close
+    pub fn with_slow_close_upon_condition(
+        &self,
+        stream: String,
+        delay: ToxicValueType,
+        toxicity: f32,
+        condition: Option<ToxicCondition>,
+    ) -> &Self {
         let mut attributes = HashMap::new();
         attributes.insert("delay".into(), delay);
 
-        self.create_toxic(ToxicPack::new(
+        self.create_toxic(ToxicPack::new_with_condition(
             "slow_close".into(),
             stream,
             toxicity,
             attributes,
+            condition,
         ))
     }
 
@@ -266,14 +376,50 @@ impl Proxy {
     ///
     /// [timeout]: https://github.com/Shopify/toxiproxy#timeout
     pub fn with_timeout(&self, stream: String, timeout: ToxicValueType, toxicity: f32) -> &Self {
+        self.with_timeout_upon_condition(stream, timeout, toxicity, None)
+    }
+
+    /// Registers a [timeout] Toxic with a condition.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # toxiproxy_rust::TOXIPROXY.populate(vec![toxiproxy_rust::proxy::ProxyPack::new(
+    /// #    "socket".into(),
+    /// #    "localhost:2001".into(),
+    /// #    "localhost:2000".into(),
+    /// # )]);
+    /// toxiproxy_rust::TOXIPROXY
+    ///   .find_proxy("socket")
+    ///   .unwrap()
+    ///   .with_timeout_upon_condition(
+    ///     "downstream".into(),
+    ///     5000,
+    ///     1.0,
+    ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
+    ///       "x-api-key".into(),
+    ///       "123456".into(),
+    ///     )),
+    ///   );
+    /// ```
+    ///
+    /// [timeout]: https://github.com/Shopify/toxiproxy#timeout
+    pub fn with_timeout_upon_condition(
+        &self,
+        stream: String,
+        timeout: ToxicValueType,
+        toxicity: f32,
+        condition: Option<ToxicCondition>,
+    ) -> &Self {
         let mut attributes = HashMap::new();
         attributes.insert("timeout".into(), timeout);
 
-        self.create_toxic(ToxicPack::new(
+        self.create_toxic(ToxicPack::new_with_condition(
             "timeout".into(),
             stream,
             toxicity,
             attributes,
+            condition,
         ))
     }
 
@@ -302,16 +448,56 @@ impl Proxy {
         delay: ToxicValueType,
         toxicity: f32,
     ) -> &Self {
+        self.with_slicer_upon_condition(stream, average_size, size_variation, delay, toxicity, None)
+    }
+
+    /// Registers a [slicer] Toxic with a condition.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # toxiproxy_rust::TOXIPROXY.populate(vec![toxiproxy_rust::proxy::ProxyPack::new(
+    /// #    "socket".into(),
+    /// #    "localhost:2001".into(),
+    /// #    "localhost:2000".into(),
+    /// # )]);
+    /// toxiproxy_rust::TOXIPROXY
+    ///   .find_proxy("socket")
+    ///   .unwrap()
+    ///   .with_slicer_upon_condition(
+    ///     "downstream".into(),
+    ///     1024,
+    ///     128,
+    ///     500,
+    ///     1.0,
+    ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
+    ///       "x-api-key".into(),
+    ///       "123456".into(),
+    ///     )),
+    ///   );
+    /// ```
+    ///
+    /// [slicer]: https://github.com/Shopify/toxiproxy#slicer
+    pub fn with_slicer_upon_condition(
+        &self,
+        stream: String,
+        average_size: ToxicValueType,
+        size_variation: ToxicValueType,
+        delay: ToxicValueType,
+        toxicity: f32,
+        condition: Option<ToxicCondition>,
+    ) -> &Self {
         let mut attributes = HashMap::new();
         attributes.insert("average_size".into(), average_size);
         attributes.insert("size_variation".into(), size_variation);
         attributes.insert("delay".into(), delay);
 
-        self.create_toxic(ToxicPack::new(
+        self.create_toxic(ToxicPack::new_with_condition(
             "slicer".into(),
             stream,
             toxicity,
             attributes,
+            condition,
         ))
     }
 
@@ -333,14 +519,50 @@ impl Proxy {
     ///
     /// [limit_data]: https://github.com/Shopify/toxiproxy#limit_data
     pub fn with_limit_data(&self, stream: String, bytes: ToxicValueType, toxicity: f32) -> &Self {
+        self.with_limit_data_upon_condition(stream, bytes, toxicity, None)
+    }
+
+    /// Registers a [limit_data] Toxic with a condition.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # toxiproxy_rust::TOXIPROXY.populate(vec![toxiproxy_rust::proxy::ProxyPack::new(
+    /// #    "socket".into(),
+    /// #    "localhost:2001".into(),
+    /// #    "localhost:2000".into(),
+    /// # )]);
+    /// toxiproxy_rust::TOXIPROXY
+    ///   .find_proxy("socket")
+    ///   .unwrap()
+    ///   .with_limit_data_upon_condition(
+    ///     "downstream".into(),
+    ///     2048,
+    ///     1.0,
+    ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
+    ///       "x-api-key".into(),
+    ///       "123456".into(),
+    ///     )),
+    ///   );
+    /// ```
+    ///
+    /// [limit_data]: https://github.com/Shopify/toxiproxy#limit_data
+    pub fn with_limit_data_upon_condition(
+        &self,
+        stream: String,
+        bytes: ToxicValueType,
+        toxicity: f32,
+        condition: Option<ToxicCondition>,
+    ) -> &Self {
         let mut attributes = HashMap::new();
         attributes.insert("bytes".into(), bytes);
 
-        self.create_toxic(ToxicPack::new(
+        self.create_toxic(ToxicPack::new_with_condition(
             "limit_data".into(),
             stream,
             toxicity,
             attributes,
+            condition,
         ))
     }
 

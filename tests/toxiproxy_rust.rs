@@ -2,11 +2,16 @@
 
 use std::net::TcpListener;
 use std::net::TcpStream;
+use std::sync::Arc;
 use std::thread::spawn;
 use std::time::SystemTime;
 use std::{io::prelude::*, time::Duration};
 
+use axum::routing::get;
+use axum::Router;
 use proxy::*;
+use tokio::sync::Mutex;
+use toxiproxy_rust::toxic::ToxicCondition;
 use toxiproxy_rust::*;
 
 /**
@@ -173,6 +178,48 @@ fn test_proxy_apply_with_latency_with_real_request() {
     assert!(apply_result.is_ok());
 }
 
+#[test]
+fn test_proxy_with_latency_with_two_real_http_requests() {
+    populate_example();
+    let proxy_result = TOXIPROXY.find_and_reset_proxy("socket");
+    assert!(proxy_result.is_ok());
+
+    proxy_result.as_ref().unwrap().with_latency_upon_condition(
+        "upstream".into(),
+        2000,
+        0,
+        1.0,
+        Some(ToxicCondition::new_http_request_header_matcher(
+            "x-api-key".into(),
+            "123".into(),
+        )),
+    );
+
+    // First roundtrip does not have latency.
+    let server_thread = spawn(|| {
+        let rt = tokio::runtime::Runtime::new().expect("failed to create local Runtime");
+        rt.block_on(one_shot_http_server())
+    });
+    let client_thread = spawn(|| one_shot_http_client());
+
+    server_thread.join().expect("Failed closing server thread");
+    let duration = client_thread.join().expect("Failed closing client thread");
+    assert!(duration.as_secs() < 2);
+
+    println!("First roundtrip took {:?}", duration);
+
+    // Second roundtrip has latency.
+    let server_thread = spawn(|| {
+        let rt = tokio::runtime::Runtime::new().expect("failed to create local Runtime");
+        rt.block_on(one_shot_http_server())
+    });
+    let client_thread = spawn(|| one_shot_http_client());
+
+    server_thread.join().expect("Failed closing server thread");
+    let duration = client_thread.join().expect("Failed closing client thread");
+    assert!(duration.as_secs() >= 2);
+}
+
 /**
  * Support functions.
  */
@@ -220,4 +267,45 @@ fn one_take_server() {
         .expect("Server failed writing response");
 
     stream.flush().expect("Failed flushing connection");
+}
+
+fn one_shot_http_client() -> Duration {
+    let t_start = SystemTime::now();
+    let client = reqwest::blocking::Client::builder().build().unwrap();
+    let resp = client
+        .get("http://localhost:2001/example")
+        .header("x-api-key", "123")
+        .send()
+        .expect("Failed sending request");
+    assert!(resp.status().is_success());
+    t_start.elapsed().expect("Cannot establish duration")
+}
+
+async fn one_shot_http_server() {
+    let (tx, rx) = tokio::sync::oneshot::channel::<()>();
+    let arc_tx = Arc::new(Mutex::new(Some(tx)));
+
+    // build our application with a single route that sends signal to shut down server after serving one request.
+    let app = Router::new().route(
+        "/example",
+        get(|| async move {
+            // Send signal to shut down server.
+            if let Some(tx) = arc_tx.lock().await.take() {
+                let _ = tx.send(());
+            }
+
+            "Hello, World!"
+        }),
+    );
+
+    // run it with hyper on localhost:2000
+    axum::Server::bind(&"0.0.0.0:2000".parse().unwrap())
+        .serve(app.into_make_service())
+        .with_graceful_shutdown(async {
+            rx.await.ok();
+        })
+        .await
+        .unwrap();
+
+    println!("Server has shut down");
 }
