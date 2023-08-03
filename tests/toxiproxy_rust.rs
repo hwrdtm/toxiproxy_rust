@@ -190,7 +190,7 @@ fn test_proxy_with_latency_with_two_real_http_requests() {
         0,
         1.0,
         Some(ToxicCondition::new_http_request_header_matcher(
-            "x-api-key".into(),
+            "api-key".into(),
             "123".into(),
         )),
     );
@@ -274,7 +274,7 @@ fn one_shot_http_client() -> Duration {
     let client = reqwest::blocking::Client::builder().build().unwrap();
     let resp = client
         .get("http://localhost:2001/example")
-        .header("x-api-key", "123")
+        .header("api-key", "123")
         .send()
         .expect("Failed sending request");
     assert!(resp.status().is_success());

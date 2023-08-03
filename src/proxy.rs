@@ -200,7 +200,7 @@ impl Proxy {
     ///     0,
     ///     1.0,
     ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
-    ///       "x-api-key".into(),
+    ///       "api-key".into(),
     ///       "123456".into(),
     ///     )),
     ///   );
@@ -267,7 +267,7 @@ impl Proxy {
     ///     500,
     ///     1.0,
     ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
-    ///       "x-api-key".into(),
+    ///       "api-key".into(),
     ///       "123456".into(),
     ///     )),
     ///   );
@@ -332,7 +332,7 @@ impl Proxy {
     ///     500,
     ///     1.0,
     ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
-    ///       "x-api-key".into(),
+    ///       "api-key".into(),
     ///       "123456".into(),
     ///     )),
     ///   );
@@ -397,7 +397,7 @@ impl Proxy {
     ///     5000,
     ///     1.0,
     ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
-    ///       "x-api-key".into(),
+    ///       "api-key".into(),
     ///       "123456".into(),
     ///     )),
     ///   );
@@ -471,7 +471,7 @@ impl Proxy {
     ///     500,
     ///     1.0,
     ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
-    ///       "x-api-key".into(),
+    ///       "api-key".into(),
     ///       "123456".into(),
     ///     )),
     ///   );
@@ -540,7 +540,7 @@ impl Proxy {
     ///     2048,
     ///     1.0,
     ///     Some(toxiproxy_rust::toxic::ToxicCondition::new_http_request_header_matcher(
-    ///       "x-api-key".into(),
+    ///       "api-key".into(),
     ///       "123456".into(),
     ///     )),
     ///   );
